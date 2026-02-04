@@ -10,6 +10,7 @@
       --text: #f5f3ff;
       --card-bg: rgba(255, 255, 255, 0.06);
       --card-border: rgba(255, 255, 255, 0.12);
+      --accent: #a855f7;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -23,7 +24,6 @@
       background: var(--bg);
       color: var(--text);
       overflow-x: hidden;
-      /* 优化内边距，确保内容不挤压 */
       padding: 40px 16px 60px;
       transition: background 0.8s ease;
     }
@@ -60,37 +60,38 @@
       text-align: center;
     }
 
-    /* 核心升级：AI 灵感舱 */
+    /* --- 方案 C：沉浸式发光 AI 灵感舱 --- */
     .ai-container {
       width: min(720px, 95vw);
-      height: 550px; /* 固定高度，确保 AI 窗口舒适 */
-      border-radius: 28px;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      backdrop-filter: blur(25px) saturate(180%);
-      -webkit-backdrop-filter: blur(25px) saturate(180%);
+      height: 600px; /* 增加一点高度给对话框 */
+      border-radius: 32px;
+      /* 这里的背景色形成了“黑边框”效果，并带有深紫色渐变 */
+      background: linear-gradient(145deg, #1a0b2e 0%, #040404 100%);
+      border: 1px solid rgba(168, 85, 247, 0.4);
       overflow: hidden;
-      box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+      box-shadow: 0 0 40px rgba(139, 92, 246, 0.25); /* 紫色外发光氛围灯 */
       margin-bottom: 25px;
       position: relative;
+      padding: 12px; /* 关键：留出边距，让白屏悬浮在底座上 */
     }
 
     .ai-header {
-      padding: 12px 20px;
-      background: rgba(255,255,255,0.05);
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      font-size: 13px;
+      padding: 10px 20px;
+      background: transparent;
+      font-size: 11px;
       font-weight: 600;
       display: flex;
       align-items: center;
       gap: 8px;
+      color: var(--accent);
+      letter-spacing: 1px;
     }
 
     .ai-header::before {
       content: "";
-      width: 8px;
-      height: 8px;
-      background: #10b981; /* 绿灯表示在线 */
+      width: 6px;
+      height: 6px;
+      background: #10b981;
       border-radius: 50%;
       box-shadow: 0 0 10px #10b981;
     }
@@ -98,9 +99,12 @@
     /* iframe 样式优化 */
     iframe {
       width: 100%;
-      height: calc(100% - 43px); /* 减去 header 高度 */
+      height: calc(100% - 35px); /* 减去 header 高度 */
       border: none;
-      background: #ffffff; /* AI 窗口内部通常需要白色背景才清晰 */
+      background: #ffffff;
+      border-radius: 20px; /* 让白屏内部也有圆角，更柔和 */
+      /* 稍微压低亮度，减少对眼睛的刺激 */
+      filter: brightness(0.98);
     }
 
     /* 底部名言卡片 */
@@ -117,6 +121,12 @@
     .quote { font-style: italic; color: #e9d5ff; font-size: 0.95rem; line-height: 1.5; margin-bottom: 8px; display: block; }
     .author { font-size: 0.8rem; opacity: 0.5; }
 
+    /* 移动端适配 */
+    @media (max-width: 600px) {
+      .ai-container { height: 70vh; padding: 8px; }
+      iframe { height: calc(100% - 30px); border-radius: 16px; }
+    }
+
   </style>
 </head>
 <body>
@@ -129,7 +139,7 @@
   <h1>Own your power</h1>
 
   <section class="ai-container">
-    <div class="ai-header">Vibe AI 灵感实验室 - 实时连接中</div>
+    <div class="ai-header">VIBE AI CORE - ONLINE</div>
     <iframe src="https://doubao.com/bot/svu54BXp?hide_aside=1"></iframe>
   </section>
 

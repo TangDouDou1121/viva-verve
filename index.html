@@ -1,30 +1,203 @@
-<div class="chat-widget">
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Vibe Space</title>
+  <style>
+    :root {
+      --bg: #040404;
+      --text: #f5f3ff;
+      --glow-strong: rgba(139, 92, 246, 0.6);
+      /* 核心毛玻璃参数：背景更透明，模糊感更强 */
+      --card-bg: rgba(255, 255, 255, 0.07);
+      --card-border: rgba(255, 255, 255, 0.15);
+      --vibe-btn-bg: rgba(255, 255, 255, 0.12);
+    }
+
+    :root.light-mode {
+      --bg: #f8f9fa;
+      --text: #111827;
+      --card-bg: rgba(0, 0, 0, 0.05);
+      --card-border: rgba(0, 0, 0, 0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start; 
+      gap: 20px; /* 缩小间距，让卡片露出来 */
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      padding: 90px 16px 100px;
+      transition: background 0.8s ease;
+    }
+
+    .theme-toggle {
+      position: fixed; top: 20px; left: 16px;
+      padding: 10px 16px; border-radius: 999px;
+      background: rgba(168, 85, 247, 0.2);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      color: var(--text); font-size: 13px; font-weight: 600;
+      cursor: pointer; backdrop-filter: blur(10px); z-index: 1000;
+    }
+
+    .vibe-button {
+      padding: 12px 24px; border-radius: 999px;
+      background: var(--vibe-btn-bg); color: #fff;
+      backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3); cursor: pointer;
+    }
+
+    .pulse {
+      position: relative; width: min(260px, 50vw); aspect-ratio: 1;
+      display: grid; place-items: center; margin: 10px 0;
+    }
+    .glow {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: radial-gradient(circle, var(--glow-strong) 0%, transparent 70%);
+      animation: breathe 4.5s ease-in-out infinite; filter: blur(20px);
+    }
+    h1 {
+      position: relative; font-size: clamp(30px, 7vw, 56px);
+      font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+      text-align: center; color: #f8d66d; line-height: 1.1;
+      text-shadow: 0 0 15px rgba(248, 214, 109, 0.5);
+    }
+
+    /* 优化后的毛玻璃卡片样式 */
+    .simulator, .frosted-card {
+      width: min(720px, 92vw);
+      border-radius: 24px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      padding: 24px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    }
+
+    .simulator h2 { font-size: 14px; margin-bottom: 12px; opacity: 0.7; letter-spacing: 1px; }
+    .simulator .box {
+      height: 100px; border-radius: 12px; padding: 12px;
+      background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.05);
+      overflow-y: auto; margin-bottom: 15px; font-size: 14px; line-height: 1.6;
+    }
+    .simulator .row { display: flex; gap: 8px; }
+    .simulator input {
+      flex: 1; border-radius: 12px; padding: 12px;
+      border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.1); color: #white;
+    }
+    .simulator .send {
+      padding: 0 20px; border-radius: 12px; border: none;
+      background: linear-gradient(135deg, #a855f7, #ec4899); color: white; font-weight: bold;
+    }
+
+    .frosted-card { width: min(340px, 92vw); text-align: center; padding: 20px; }
+    .quote { font-style: italic; font-size: 1rem; line-height: 1.5; display: block; margin-bottom: 10px; color: #e9d5ff; }
+    .author { font-size: 0.85rem; opacity: 0.6; }
+
+    /* 聊天组件保持原样 */
+    .chat-widget { position: fixed; right: 20px; bottom: 20px; z-index: 2000; }
+    .chat-fab {
+      width: 56px; height: 56px; border-radius: 28px; border: none;
+      background: linear-gradient(135deg, #a855f7, #ec4899); color: white; font-size: 24px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3); cursor: pointer;
+    }
+    .chat-window {
+      position: absolute; right: 0; bottom: 70px; width: min(350px, 85vw); height: 500px;
+      background: #121212; border-radius: 16px; overflow: hidden;
+      opacity: 0; pointer-events: none; transform: translateY(20px); transition: all 0.3s ease;
+    }
+    .chat-window.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+    iframe { width: 100%; height: calc(100% - 45px); border: none; background: #fff; }
+
+    @keyframes breathe {
+      0%, 100% { transform: scale(0.95); opacity: 0.7; }
+      50% { transform: scale(1.05); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle">切换夜间模式</button>
+  <button id="vibeBtn" class="vibe-button">换个心情吧！</button>
+
+  <div class="pulse">
+    <div class="glow"></div>
+    <h1>Own your<br>power</h1>
+  </div>
+
+  <section class="simulator">
+    <h2>灵感模拟器</h2>
+    <div class="box" id="simBox">输入关键词，寻找你的 Vibe 灵感。</div>
+    <div class="row">
+      <input id="simInput" type="text" placeholder="你的状态..." maxlength="80" />
+      <button class="send" id="simSend">发送</button>
+    </div>
+  </section>
+
+  <div class="frosted-card">
+    <span class="quote">"Courage is not the absence of fear, but the triumph over it."</span>
+    <div class="author">— Nelson Mandela</div>
+  </div>
+
+  <div class="chat-widget">
     <button class="chat-fab" id="chatFab">💬</button>
     <div class="chat-window" id="chatWindow">
-      <div style="padding: 12px; background: rgba(31, 31, 31, 0.8); backdrop-filter: blur(10px); display: flex; justify-content: space-between; color: white; border-bottom: 1px solid rgba(255,255,255,0.1);">
-        <span style="font-weight: bold; letter-spacing: 1px;">Vibe Chat</span>
+      <div style="padding: 12px; background: #1f1f1f; display: flex; justify-content: space-between; color: white;">
+        <span>Vibe Chat</span>
         <button id="chatClose" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">×</button>
       </div>
       <iframe src="https://doubao.com/bot/svu54BXp"></iframe>
     </div>
-</div>
+  </div>
 
-<style>
-    /* 增强毛玻璃感 */
-    .simulator, .frosted-card {
-      background: rgba(255, 255, 255, 0.05) !important; /* 降低底色不透明度 */
-      backdrop-filter: blur(25px) saturate(200%) !important; /* 增加模糊和饱和度 */
-      -webkit-backdrop-filter: blur(25px) saturate(200%) !important;
-      border: 1px solid rgba(255, 255, 255, 0.2) !important; /* 边框亮一点 */
+  <script>
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+      document.documentElement.classList.toggle('light-mode');
+      themeToggle.textContent = document.documentElement.classList.contains('light-mode') ? '切换夜间模式' : '切换日间模式';
+    });
+
+    const vibeBtn = document.getElementById('vibeBtn');
+    vibeBtn.addEventListener('click', () => {
+      const c1 = '#' + Math.floor(Math.random()*16777215).toString(16);
+      const c2 = '#' + Math.floor(Math.random()*16777215).toString(16);
+      document.body.style.background = `linear-gradient(${Math.random()*360}deg, ${c1}, ${c2})`;
+    });
+
+    const simBox = document.getElementById('simBox');
+    const simInput = document.getElementById('simInput');
+    const simSend = document.getElementById('simSend');
+    const vibeReplies = ['Vibe 是你给世界的频率：先把自己调到舒服的频道。', '把注意力放回呼吸里，你的气场会自动站稳。', '让环境为你服务：收拾桌面、点一盏灯。'];
+
+    function doSimulate() {
+      const text = simInput.value.trim();
+      if (!text) return;
+      const p = document.createElement('div');
+      p.textContent = `你：${text}`;
+      simBox.appendChild(p);
+      simInput.value = '';
+      setTimeout(() => {
+        const reply = document.createElement('div');
+        reply.style.color = '#a855f7';
+        reply.textContent = `灵感：${vibeReplies[Math.floor(Math.random()*vibeReplies.length)]}`;
+        simBox.appendChild(reply);
+        simBox.scrollTop = simBox.scrollHeight;
+      }, 600);
     }
-    
-    /* 解决遮挡：调整布局间距 */
-    body {
-      gap: 15px !important; /* 紧凑一点 */
-      padding-top: 80px !important;
-    }
-    
-    .pulse {
-      margin: 5px 0 !important; /* 缩小光圈占用的垂直空间 */
-    }
-</style>
+    simSend.addEventListener('click', doSimulate);
+
+    const fab = document.getElementById('chatFab');
+    const win = document.getElementById('chatWindow');
+    fab.addEventListener('click', () => win.classList.toggle('open'));
+    document.getElementById('chatClose').addEventListener('click', () => win.classList.remove('open'));
+  </script>
+</body>
+</html>

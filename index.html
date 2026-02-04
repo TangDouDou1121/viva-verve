@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe Space</title>
+    <style>
+        body {
+            background-color: #040404;
+            color: #f5f3ff;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 80px 20px; 
+            gap: 25px; /* 这里彻底拉开了按钮之间的距离 */
+            min-height: 100vh;
+        }
+        .btn-group {
+            display: flex;
+            flex-direction: column; /* 手机端强制纵向排列 */
+            gap: 20px; /* 按钮和按钮之间的呼吸感 */
+            width: 100%;
+            max-width: 280px;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            color: white;
+            font-size: 16px;
+        }
+        #coze-launcher { position: fixed; bottom: 30px; right: 20px; z-index: 9999; }
+        #coze-window { 
+            display: none; position: absolute; bottom: 80px; right: 0; 
+            width: 320px; height: 500px; background: white; border-radius: 16px; overflow: hidden; 
+        }
+    </style>
+</head>
+<body>
+    <div class="btn-group">
+        <button onclick="document.body.style.background='white'">切换日间模式</button>
+        <button onclick="document.body.style.background='#1a1a2e'">换个心情吧！</button>
+    </div>
+    <div id="coze-launcher">
+        <button onclick="toggleCoze()" style="width:60px; height:60px; border-radius:50%; background: #3b82f6;">💬</button>
+        <div id="coze-window">
+            <iframe src="https://www.coze.cn/s/你的链接/" style="width:100%; height:100%; border:none;"></iframe>
+        </div>
+    </div>
+    <script>
+        function toggleCoze() {
+            const win = document.getElementById('coze-window');
+            win.style.display = win.style.display === 'none' ? 'block' : 'none';
+        }
+    </script>
+</body>
+</html>
